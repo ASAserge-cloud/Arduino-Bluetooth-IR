@@ -1,0 +1,151 @@
+#include <IRremote.h>                           //Including library for IR reciever 
+
+//Defining relay channels to thier pin numbers(digital)
+#define channelOne 8
+#define channelTwo 9
+#define channelThree 10
+#define channelFour 11
+
+//Declaring global variables
+int state = 0;
+int key = 0;
+int toggleState_1 = 0;                              //Define integer to remember the toggle state for channel one
+int toggleState_2 = 0;                              //Define integer to remember the toggle state for channel two
+int toggleState_3 = 0;                              //Define integer to remember the toggle state for channel three
+int toggleState_4 = 0;                              //Define integer to remember the toggle state for channel four
+
+//Define IR receiver and Result Objects
+IRrecv irrecv(A0);
+decode_results results;
+
+void setup() {
+
+  irrecv.enableIRIn();                              // Enable the IR receiver
+
+  //Setting up the pins
+  pinMode(channelOne, OUTPUT);
+  pinMode(channelTwo, OUTPUT);
+  pinMode(channelThree, OUTPUT);
+  pinMode(channelFour, OUTPUT);
+
+  //Writig all the pins to a low state
+  digitalWrite(channelOne, LOW);
+  digitalWrite(channelOne, LOW);
+  digitalWrite(channelOne, LOW);
+  digitalWrite(channelOne, LOW);
+
+  //Invoking serial communicator with it's baud rate
+  Serial.begin(9600);
+  Serial.println("Welcomw to WiCon Systems, Initializing...");
+  delay(500);
+  Serial.println("Engineering your home, press any key to get started.");
+}
+
+void loop() {
+
+  //Code runs when button on bluetooth app is pressed
+  if (Serial.available() > 0) {                     // Checks if data is comming from the serial port
+    state = Serial.read();                          // Reads the data from the serial port
+
+    switch (state) {
+      case 'a':
+        digitalWrite(channelOne, LOW);              // Turn channel one relay OFF
+        Serial.println("Channel One: OFF");         // Send back, to the phone, the Channel One "OFF"
+        break;
+      case 'A':
+        digitalWrite(channelOne, HIGH);             // Turn channel one relay ON
+        Serial.println("Channel One: ON");          // Send back, to the phone, the Channel One "ON"
+      case 'b':
+        digitalWrite(channelTwo, LOW);              // Turn channel two relay OFF
+        Serial.println("Channel Two: OFF");         // Send back, to the phone, the Channel Two "OFF"
+        break;
+      case 'B':
+        digitalWrite(channelTwo, HIGH);             // Turn channel two relay ON
+        Serial.println("Channel Two: ON");          // Send back, to the phone, the Channel Two "ON"
+      case 'c':
+        digitalWrite(channelThree, LOW);            // Turn channel three relay OFF
+        Serial.println("Channel Three: OFF");       // Send back, to the phone, the Channel Three "OFF"
+        break;
+      case 'C':
+        digitalWrite(channelThree, HIGH);           // Turn channel Three relay ON
+        Serial.println("Channel Three: ON");        // Send back, to the phone, the Channel Three "ON"
+      case 'd':
+        digitalWrite(channelFour, LOW);             // Turn channel Four relay OFF
+        Serial.println("Channel Four: OFF");        // Send back, to the phone, the Channel Four "OFF"
+        break;
+      case 'D':
+        digitalWrite(channelFour, HIGH);            // Turn channel Four relay ON
+        Serial.println("Channel Four: ON");         // Send back, to the phone, the Channel Four "ON"
+      default: break;
+    }
+
+    Serial.print(state);
+  }
+  delay(100);
+
+  //Code runs when button on remote control is pressed
+  if (irrecv.decode(&results)) {
+    switch (results.value) {
+      case 2155815390:
+        if (toggleState_1 == 0) {
+          digitalWrite(channelOne, HIGH);           // Turn channel One relay ON
+          Serial.println("Channel One: ON");        // Send back, to the phone, the Channel One "ON"
+          toggleState_1 = 1;                        // Changing current state
+        }
+        else {
+          digitalWrite(channelOne, LOW);            // Turn channel One relay OFF
+          Serial.println("Channel One: OFF");       // Send back, to the phone, the Channel One "OFF"
+          toggleState_1 = 0;                        // Changing current state
+        }
+        delay(100);
+        break;
+
+      case 2155864350:
+        if (toggleState_2 == 0) {
+          digitalWrite(channelTwo, HIGH);           // Turn channel Two relay ON
+          Serial.println("Channel Two: ON");        // Send back, to the phone, the Channel Two "ON"
+          toggleState_2 = 1;                        // Changing current state
+        }
+        else {
+          digitalWrite(channelTwo, LOW);            // Turn channel Two relay OFF
+          Serial.println("Channel Two: OFF");       // Send back, to the phone, the Channel Two "OFF"
+          toggleState_2 = 0;                        // Changing current state
+        }
+        delay(100);
+        break;
+      case 2155831710:
+        if (toggleState_3 == 0) {
+          digitalWrite(channelThree, HIGH);         // Turn channel Three relay ON
+          Serial.println("Channel Three: ON");      // Send back, to the phone, the Channel Three "ON"
+          toggleState_3 = 1;                        // Changing current state
+        }
+        else {
+          digitalWrite(channelThree, LOW);          // Turn channel Three relay OFF
+          Serial.println("Channel Three: OFF");     // Send back, to the phone, the Channel Three "OFF"
+          toggleState_3 = 0;                        // Changing current state
+        }
+        delay(100);
+        break;
+      case 2155848030:
+        if (toggleState_4 == 0) {
+          digitalWrite(channelFour, HIGH);          // Turn channel Four relay ON
+          Serial.println("Channel Four: ON");       // Send back, to the phone, the Channel Four "ON"
+          toggleState_4 = 1;                        // Changing current state
+        }
+        else {
+          digitalWrite(channelFour, LOW);           // Turn channel Four relay OFF
+           Serial.println("Channel Four: OFF");     // Send back, to the phone, the Channel Four "OFF"
+          toggleState_4 = 0;                        // Changing current state
+        }
+        delay(100);
+        break;
+      default : 
+          Serial.println("Key Not Assigned!");
+          Serial.println((results.value)); 
+    }
+
+    irrecv.resume();                                // Receive the next value
+  }
+
+  //Open SOurce is love, powered by ASAtech
+}
